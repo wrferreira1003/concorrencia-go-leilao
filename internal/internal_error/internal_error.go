@@ -23,3 +23,10 @@ func NewInternalServerError(message string) *InternalError {
 		Err:     "internal_server_error",
 	}
 }
+
+func NewBadRequestError(message string) *InternalError {
+	return &InternalError{
+		Message: message,
+		Err:     "bad_request",
+	}
+}
