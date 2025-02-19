@@ -2,11 +2,9 @@ package bidusecase
 
 import (
 	"context"
-
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 )
 
-func (u *BidUseCase) FindBidByIDAuctionId(ctx context.Context, auctionID string) ([]BidOutputDto, *internal_error.InternalError) {
+func (u *BidUseCase) FindBidByIDAuctionId(ctx context.Context, auctionID string) ([]BidOutputDto, error) {
 	bids, err := u.bidRepository.FindBidByID(ctx, auctionID)
 	if err != nil {
 		return nil, err
@@ -26,7 +24,7 @@ func (u *BidUseCase) FindBidByIDAuctionId(ctx context.Context, auctionID string)
 	return bidsOutputDto, nil
 }
 
-func (u *BidUseCase) FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*BidOutputDto, *internal_error.InternalError) {
+func (u *BidUseCase) FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*BidOutputDto, error) {
 	winnerBid, err := u.bidRepository.FindWinnerBidByAuctionID(ctx, auctionID)
 	if err != nil {
 		return nil, err

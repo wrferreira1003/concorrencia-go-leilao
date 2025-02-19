@@ -37,6 +37,7 @@ func NewBidRepositoryMongo(
 
 func (r *BidRepositoryMongo) CreateBid(ctx context.Context, bids []bid_entity.Bid) *internal_error.InternalError {
 	var wg sync.WaitGroup
+	errChan := make(chan error, len(bids)) // Canal para capturar erros
 
 	for _, bid := range bids {
 		wg.Add(1)
@@ -46,12 +47,14 @@ func (r *BidRepositoryMongo) CreateBid(ctx context.Context, bids []bid_entity.Bi
 			auction, err := r.AuctionRepository.FindAuctionByID(ctx, bidValue.AuctionID)
 			if err != nil {
 				logger.Error("error finding auction", err)
+				errChan <- internal_error.NewNotFoundError("auction not found")
 				return
 			}
 
-			// Check if the auction is active
+			// Verificar se o leilão está ativo
 			if auction.Status != auction_entity.Active {
 				logger.Error("auction is not active", internal_error.NewNotFoundError("auction is not active"))
+				errChan <- internal_error.NewBadRequestError("auction is not active")
 				return
 			}
 
@@ -65,12 +68,22 @@ func (r *BidRepositoryMongo) CreateBid(ctx context.Context, bids []bid_entity.Bi
 
 			if _, err := r.collection.InsertOne(ctx, bidMongo); err != nil {
 				logger.Error("error creating bid", err)
+				errChan <- internal_error.NewInternalServerError("error inserting bid into database")
 				return
 			}
 		}(bid)
 	}
 
+	// Esperar todas as goroutines terminarem
 	wg.Wait()
+	close(errChan)
+
+	// Verificar se ocorreu algum erro
+	for err := range errChan {
+		if err != nil {
+			return internal_error.NewInternalServerError(err.Error())
+		}
+	}
 
 	return nil
 }

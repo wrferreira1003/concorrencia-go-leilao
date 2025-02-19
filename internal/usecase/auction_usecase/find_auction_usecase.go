@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/auction_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 	bidusecase "github.com/wrferreira1003/concorrencia-go-leilao/internal/usecase/bid_usecase"
 )
 
-func (u *AuctionUseCase) FindAuctionByID(ctx context.Context, id string) (*AuctionOutputDto, *internal_error.InternalError) {
+func (u *AuctionUseCase) FindAuctionByID(ctx context.Context, id string) (*AuctionOutputDto, error) {
 
 	auction, err := u.auctionRepository.FindAuctionByID(ctx, id)
 	if err != nil {
-		return nil, internal_error.NewBadRequestError(err.Error())
+		return nil, err
 	}
 
 	auctionOutputDto := &AuctionOutputDto{
@@ -28,11 +27,11 @@ func (u *AuctionUseCase) FindAuctionByID(ctx context.Context, id string) (*Aucti
 	return auctionOutputDto, nil
 }
 
-func (u *AuctionUseCase) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category string, productName string) ([]AuctionOutputDto, *internal_error.InternalError) {
+func (u *AuctionUseCase) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category string, productName string) ([]AuctionOutputDto, error) {
 
 	auctions, err := u.auctionRepository.FindAuctions(ctx, auction_entity.AuctionStatus(status), category, productName)
 	if err != nil {
-		return nil, internal_error.NewBadRequestError(err.Error())
+		return nil, err
 	}
 
 	var auctionOutputDtos []AuctionOutputDto
@@ -51,18 +50,18 @@ func (u *AuctionUseCase) FindAuctions(ctx context.Context, status auction_entity
 	return auctionOutputDtos, nil
 }
 
-func (u *AuctionUseCase) FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*WinnerInfoOutputDto, *internal_error.InternalError) {
+func (u *AuctionUseCase) FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*WinnerInfoOutputDto, error) {
 
 	//Busca o leilão no banco de dados
 	auction, err := u.auctionRepository.FindAuctionByID(ctx, auctionID)
 	if err != nil {
-		return nil, internal_error.NewBadRequestError(err.Error())
+		return nil, err
 	}
 
 	//Busca o lance vencedor do leilão
 	bidWinner, err := u.bidRepository.FindWinnerBidByAuctionID(ctx, auctionID)
 	if err != nil {
-		return nil, internal_error.NewBadRequestError(err.Error())
+		return nil, err
 	}
 
 	//Converte o leilão para o DTO

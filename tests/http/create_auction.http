@@ -1,0 +1,21 @@
+POST http://localhost:8080/auctions
+
+{
+	"product_name": "Test Product",
+	"category": "Test Category",
+	"description": "Test Description",
+	"condition": "new"
+}
+
+### Busca todos os leilões conforme o status, categoria e produto
+
+GET http://localhost:8080/auctions?status=1
+
+### Busca pelo id do leilão
+
+GET http://localhost:8080/auctions/db9a3ec1-1dc1-4f74-bc18-42c5f83ea631
+
+
+### Busca leilao vencedor pelo id do leilão
+
+GET http://localhost:8080/auctions/winner/db9a3ec1-1dc1-4f74-bc18-42c5f83ea631

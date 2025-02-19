@@ -1,0 +1,11 @@
+POST http://localhost:8080/bid
+
+    {
+        "user_id": "b3d7bb8f-6bd2-4490-be77-b75f482c4f2b",
+        "auction_id": "db9a3ec1-1dc1-4f74-bc18-42c5f83ea631",
+        "amount": 100
+    }
+
+### Busca pelo id do leilão
+
+GET http://localhost:8080/bid/123

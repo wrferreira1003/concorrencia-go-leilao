@@ -6,15 +6,14 @@ import (
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/auction_entity"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/bid_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 	bidusecase "github.com/wrferreira1003/concorrencia-go-leilao/internal/usecase/bid_usecase"
 )
 
 type AuctionInputDto struct {
-	ProductName string `json:"product_name" binding:"required, min=1"`
-	Category    string `json:"category" binding:"required, min=2"`
-	Description string `json:"description" binding:"required, min=10"`
-	Condition   string `json:"condition" binding:"required, min=1"`
+	ProductName string `json:"product_name" binding:"required"`
+	Category    string `json:"category" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Condition   string `json:"condition" binding:"required"`
 }
 
 type AuctionOutputDto struct {
@@ -36,10 +35,10 @@ type ProductCondition int
 type AuctionStatus int
 
 type AuctionUseCaseInterface interface {
-	CreateAuction(ctx context.Context, auctionInputDto *AuctionInputDto) *internal_error.InternalError
-	FindAuctionByID(ctx context.Context, id string) (*AuctionOutputDto, *internal_error.InternalError)
-	FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category string, productName string) ([]AuctionOutputDto, *internal_error.InternalError)
-	FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*WinnerInfoOutputDto, *internal_error.InternalError)
+	CreateAuction(ctx context.Context, auctionInputDto *AuctionInputDto) error
+	FindAuctionByID(ctx context.Context, id string) (*AuctionOutputDto, error)
+	FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category string, productName string) ([]AuctionOutputDto, error)
+	FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*WinnerInfoOutputDto, error)
 }
 
 type AuctionUseCase struct {
@@ -57,11 +56,11 @@ func NewAuctionUseCase(
 	}
 }
 
-func (u *AuctionUseCase) CreateAuction(ctx context.Context, auctionInputDto *AuctionInputDto) *internal_error.InternalError {
+func (u *AuctionUseCase) CreateAuction(ctx context.Context, auctionInputDto *AuctionInputDto) error {
 
 	conditions, err := auction_entity.StringToProductCondition(auctionInputDto.Condition)
 	if err != nil {
-		return internal_error.NewBadRequestError(err.Error())
+		return err
 	}
 
 	auction, err := auction_entity.NewAuctionRepository(
@@ -71,13 +70,12 @@ func (u *AuctionUseCase) CreateAuction(ctx context.Context, auctionInputDto *Auc
 		conditions,
 	)
 	if err != nil {
-		return internal_error.NewBadRequestError(err.Error())
+		return err
 	}
 
-	// TODO: Implement the auction creation
 	err = u.auctionRepository.CreateAuction(ctx, auction)
 	if err != nil {
-		return internal_error.NewBadRequestError(err.Error())
+		return err
 	}
 
 	return nil

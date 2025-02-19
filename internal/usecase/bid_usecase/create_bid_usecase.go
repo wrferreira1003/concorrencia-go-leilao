@@ -8,7 +8,6 @@ import (
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/bid_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 )
 
 type BidInputDto struct {
@@ -26,9 +25,9 @@ type BidOutputDto struct {
 }
 
 type BidUseCaseInterface interface {
-	CreateBid(ctx context.Context, bidInputDto *BidInputDto) *internal_error.InternalError
-	FindBidByIDAuctionId(ctx context.Context, auctionID string) ([]BidOutputDto, *internal_error.InternalError)
-	FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*BidOutputDto, *internal_error.InternalError)
+	CreateBid(ctx context.Context, bidInputDto *BidInputDto) error
+	FindBidByIDAuctionId(ctx context.Context, auctionID string) ([]BidOutputDto, error)
+	FindWinnerBidByAuctionId(ctx context.Context, auctionID string) (*BidOutputDto, error)
 }
 
 type BidUseCase struct {
@@ -100,7 +99,7 @@ func (u *BidUseCase) triggerCreateRoutine(ctx context.Context) {
 
 }
 
-func (u *BidUseCase) CreateBid(ctx context.Context, bidInputDto *BidInputDto) *internal_error.InternalError {
+func (u *BidUseCase) CreateBid(ctx context.Context, bidInputDto *BidInputDto) error {
 
 	bidEntity, err := bid_entity.NewBidEntity(
 		bidInputDto.UserID,

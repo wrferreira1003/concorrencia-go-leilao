@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/user_entity"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
@@ -49,4 +50,16 @@ func (r *UserRepositoryMongo) FindUserByID(ctx context.Context, userID string) (
 		ID:   user.Id,
 		Name: user.Name,
 	}, nil
+}
+
+func (r *UserRepositoryMongo) CreateUser(ctx context.Context, user *user_entity.User) (*user_entity.User, *internal_error.InternalError) {
+	user.ID = uuid.New().String()
+
+	_, err := r.Collection.InsertOne(ctx, user)
+	if err != nil {
+		logger.Error("error creating user", err)
+		return nil, internal_error.NewInternalServerError("error creating user")
+	}
+
+	return user, nil
 }

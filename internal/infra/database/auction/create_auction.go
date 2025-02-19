@@ -7,7 +7,6 @@ import (
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/auction_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -34,7 +33,7 @@ func NewAuctionRepositoryMongo(
 	}
 }
 
-func (r *AuctionRepositoryMongo) CreateAuction(ctx context.Context, auction *auction_entity.Auction) *internal_error.InternalError {
+func (r *AuctionRepositoryMongo) CreateAuction(ctx context.Context, auction *auction_entity.Auction) error {
 
 	// Convert the auction entity to the auction entity mongo
 	auctionMongo := &AuctionEntityMongo{
@@ -51,7 +50,7 @@ func (r *AuctionRepositoryMongo) CreateAuction(ctx context.Context, auction *auc
 	_, err := r.Collection.InsertOne(ctx, auctionMongo)
 	if err != nil {
 		logger.Error("error creating auction", err)
-		return internal_error.NewInternalServerError("error creating auction")
+		return err
 	}
 
 	// Fica aguardando o intervalo de tempo e atualiza o status para completed

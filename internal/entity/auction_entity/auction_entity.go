@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 )
 
 type Auction struct {
@@ -38,14 +37,14 @@ const (
 
 // AuctionRepositoryInterface is the interface for the auction repository
 type AuctionRepositoryInterface interface {
-	CreateAuction(ctx context.Context, auction *Auction) *internal_error.InternalError
-	FindAuctionByID(ctx context.Context, auctionID string) (*Auction, *internal_error.InternalError)
+	CreateAuction(ctx context.Context, auction *Auction) error
+	FindAuctionByID(ctx context.Context, auctionID string) (*Auction, error)
 	FindAuctions(
 		ctx context.Context,
 		status AuctionStatus,
 		category string,
 		productName string,
-	) ([]*Auction, *internal_error.InternalError)
+	) ([]*Auction, error)
 }
 
 // NewAuctionRepository creates a new auction repository

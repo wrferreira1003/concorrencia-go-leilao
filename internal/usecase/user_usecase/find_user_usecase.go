@@ -5,7 +5,6 @@ import (
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/user_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 )
 
 type UserUseCase struct {
@@ -18,7 +17,8 @@ type UserOutputDto struct {
 }
 
 type UserUsecaseInterface interface {
-	FindUserByID(ctx context.Context, id string) (*UserOutputDto, *internal_error.InternalError)
+	FindUserByID(ctx context.Context, id string) (*UserOutputDto, error)
+	CreateUser(ctx context.Context, user *user_entity.User) (*UserOutputDto, error)
 }
 
 func NewUserUseCase(userRepository user_entity.UserRepositoryInterface) UserUsecaseInterface {
@@ -27,11 +27,11 @@ func NewUserUseCase(userRepository user_entity.UserRepositoryInterface) UserUsec
 	}
 }
 
-func (u *UserUseCase) FindUserByID(ctx context.Context, id string) (*UserOutputDto, *internal_error.InternalError) {
+func (u *UserUseCase) FindUserByID(ctx context.Context, id string) (*UserOutputDto, error) {
 	user, err := u.UserRepository.FindUserByID(ctx, id)
 	if err != nil {
 		logger.Error("error finding user", err)
-		return nil, internal_error.NewInternalServerError("error finding user")
+		return nil, err
 	}
 
 	return &UserOutputDto{

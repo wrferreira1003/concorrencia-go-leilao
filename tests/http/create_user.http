@@ -1,0 +1,13 @@
+POST http://localhost:8080/user
+
+{
+	"name": "John Doe"
+}
+
+###
+
+GET http://localhost:8080/user/b3d7bb8f-6bd2-4490-be77-b75f482c4f2b
+
+###
+
+GET http://localhost:8080/bid/b3d7bb8f-6bd2-4490-be77-b75f482c4f2b

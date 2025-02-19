@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (r *AuctionRepositoryMongo) FindAuctionByID(ctx context.Context, auctionID string) (*auction_entity.Auction, *internal_error.InternalError) {
+func (r *AuctionRepositoryMongo) FindAuctionByID(ctx context.Context, auctionID string) (*auction_entity.Auction, error) {
 
 	// Define the filter to find the auction by ID
 	filter := bson.M{"_id": auctionID}
@@ -46,7 +46,7 @@ func (r *AuctionRepositoryMongo) FindAuctions(
 	status auction_entity.AuctionStatus,
 	category string,
 	productName string,
-) ([]*auction_entity.Auction, *internal_error.InternalError) {
+) ([]*auction_entity.Auction, error) {
 
 	filter := bson.M{}
 
@@ -65,7 +65,7 @@ func (r *AuctionRepositoryMongo) FindAuctions(
 	cursor, err := r.Collection.Find(ctx, filter)
 	if err != nil {
 		logger.Error("error finding auctions", err)
-		return nil, internal_error.NewInternalServerError("error finding auctions")
+		return nil, err
 	}
 
 	defer cursor.Close(ctx)
@@ -73,7 +73,7 @@ func (r *AuctionRepositoryMongo) FindAuctions(
 	var auctions []AuctionEntityMongo
 	if err := cursor.All(ctx, &auctions); err != nil {
 		logger.Error("error decoding auctions", err)
-		return nil, internal_error.NewInternalServerError("error decoding auctions")
+		return nil, err
 	}
 
 	var auctionEntities []*auction_entity.Auction
