@@ -1,11 +1,14 @@
-package auction
+package auction_repository
 
 import (
 	"context"
+	"os"
+	"time"
 
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/auction_entity"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,10 +27,10 @@ type AuctionRepositoryMongo struct {
 }
 
 func NewAuctionRepositoryMongo(
-	database *mongo.Database,
+	collection *mongo.Database,
 ) *AuctionRepositoryMongo {
 	return &AuctionRepositoryMongo{
-		Collection: database.Collection("auctions"),
+		Collection: collection.Collection("auctions"),
 	}
 }
 
@@ -51,5 +54,33 @@ func (r *AuctionRepositoryMongo) CreateAuction(ctx context.Context, auction *auc
 		return internal_error.NewInternalServerError("error creating auction")
 	}
 
+	// Fica aguardando o intervalo de tempo e atualiza o status para completed
+	go func() {
+		select {
+		case <-time.After(getAuctionInterval()):
+			update := bson.M{
+				"$set": bson.M{
+					"status": auction_entity.Completed,
+				},
+			}
+			filter := bson.M{
+				"_id": auction.ID,
+			}
+			_, err := r.Collection.UpdateOne(ctx, filter, update)
+			if err != nil {
+				logger.Error("error updating auction", err)
+				return
+			}
+		}
+	}()
+
 	return nil
+}
+
+func getAuctionInterval() time.Duration {
+	auctionInterval := os.Getenv("AUCTION_INTERVAL")
+	if duration, err := time.ParseDuration(auctionInterval); err == nil {
+		return duration
+	}
+	return time.Minute * 5
 }

@@ -1,4 +1,4 @@
-package bid
+package bid_repository
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/wrferreira1003/concorrencia-go-leilao/config/logger.go"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/auction_entity"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/entity/bid_entity"
-	"github.com/wrferreira1003/concorrencia-go-leilao/internal/infra/database/auction"
+	auction_repository "github.com/wrferreira1003/concorrencia-go-leilao/internal/infra/database/auction"
 	"github.com/wrferreira1003/concorrencia-go-leilao/internal/internal_error"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -21,16 +21,16 @@ type BidEntityMongo struct {
 }
 
 type BidRepositoryMongo struct {
-	Collection        *mongo.Collection
-	AuctionRepository *auction.AuctionRepositoryMongo
+	collection        *mongo.Collection
+	AuctionRepository *auction_repository.AuctionRepositoryMongo
 }
 
 func NewBidRepositoryMongo(
-	collection *mongo.Collection,
-	auctionRepository *auction.AuctionRepositoryMongo,
+	collection *mongo.Database,
+	auctionRepository *auction_repository.AuctionRepositoryMongo,
 ) *BidRepositoryMongo {
 	return &BidRepositoryMongo{
-		Collection:        collection,
+		collection:        collection.Collection("bids"),
 		AuctionRepository: auctionRepository,
 	}
 }
@@ -63,7 +63,7 @@ func (r *BidRepositoryMongo) CreateBid(ctx context.Context, bids []bid_entity.Bi
 				Timestamp: bidValue.Timestamp.Unix(),
 			}
 
-			if _, err := r.Collection.InsertOne(ctx, bidMongo); err != nil {
+			if _, err := r.collection.InsertOne(ctx, bidMongo); err != nil {
 				logger.Error("error creating bid", err)
 				return
 			}

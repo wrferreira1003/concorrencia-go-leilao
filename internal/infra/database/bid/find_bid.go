@@ -1,4 +1,4 @@
-package bid
+package bid_repository
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 func (r *BidRepositoryMongo) FindBidByID(ctx context.Context, auctionID string) ([]bid_entity.Bid, *internal_error.InternalError) {
 	filter := bson.M{"auction_id": auctionID}
 
-	cursor, err := r.Collection.Find(ctx, filter)
+	cursor, err := r.collection.Find(ctx, filter)
 	if err != nil {
 		logger.Error("error finding bid", err)
 		return nil, internal_error.NewNotFoundError("bid not found")
@@ -45,7 +45,7 @@ func (r *BidRepositoryMongo) FindWinnerBidByAuctionID(ctx context.Context, aucti
 	opts := options.FindOne().SetSort(bson.D{{Key: "amount", Value: -1}})
 
 	var bid BidEntityMongo
-	if err := r.Collection.FindOne(ctx, filter, opts).Decode(&bid); err != nil {
+	if err := r.collection.FindOne(ctx, filter, opts).Decode(&bid); err != nil {
 		logger.Error("error finding bid", err)
 		return nil, internal_error.NewNotFoundError("bid not found")
 	}

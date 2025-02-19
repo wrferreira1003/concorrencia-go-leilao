@@ -1,4 +1,4 @@
-package user
+package user_repository
 
 import (
 	"context"
@@ -21,10 +21,10 @@ type UserRepositoryMongo struct {
 }
 
 func NewUserRepositoryMongo(
-	database *mongo.Database,
+	collection *mongo.Database,
 ) *UserRepositoryMongo {
 	return &UserRepositoryMongo{
-		Collection: database.Collection("users"),
+		Collection: collection.Collection("users"),
 	}
 }
 
